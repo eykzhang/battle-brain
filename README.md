@@ -61,7 +61,7 @@ building; feature implementation is in progress following the build order below.
 
 - [x] Project scaffolding (XcodeGen, module structure)
 - [x] Core data layer + local competitive dataset
-- [ ] Competitive Database
+- [x] Competitive Database
 - [ ] Team Builder
 - [ ] AWS data pipeline + dataset API
 - [ ] Replay Analysis

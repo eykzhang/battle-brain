@@ -55,6 +55,8 @@ enum DatasetBootstrapper {
         let format: String
         let speciesId: String
         let usagePercent: Double
+        let topTeammates: [String]
+        let topThreats: [String]
     }
 
     enum BootstrapError: Error {
@@ -120,7 +122,9 @@ enum DatasetBootstrapper {
                 id: dto.id,
                 format: dto.format,
                 speciesId: dto.speciesId,
-                usagePercent: dto.usagePercent
+                usagePercent: dto.usagePercent,
+                topTeammates: dto.topTeammates,
+                topThreats: dto.topThreats
             ))
         }
 

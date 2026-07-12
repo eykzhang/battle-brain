@@ -16,11 +16,14 @@ scratch.
 
 ## Status
 
-Core data layer done (build order step 1): SwiftData schema (`Species`,
-`CompetitiveSet`, `UsageStat`, `Team`, `TeamMember`), bundled fallback dataset baked by
-`Scripts/bake_dataset.py`, and a bootstrap loader that seeds the store on first launch.
-Verified running end-to-end in the simulator. Real feature UI (Competitive Database,
-step 2) not started. AWS backend (IaC) not started.
+Core data layer (step 1) and Competitive Database UI (step 2) done. Species browse/
+search list (`Database/DatabaseListView.swift`) and detail view
+(`Database/SpeciesDetailView.swift`: stats, typing, abilities, format-scoped usage/
+sets/teammates/threats) both verified against real bundled data in the simulator.
+`UsageStat` now also carries `topTeammates`/`topThreats` (added when building this
+pillar — Smogon's `counters` field is genuinely sparse upstream, so threats sections
+can legitimately be empty; that's real data, not a bug). Team Builder (step 3) not
+started. AWS backend (IaC) not started.
 
 ## Baking the bundled dataset
 

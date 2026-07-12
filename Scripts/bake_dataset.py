@@ -17,6 +17,9 @@ Known scoping simplifications (documented, not oversights):
 - Where Smogon lists alternative moves/natures/tera types for a set, only the
   first (primary) alternative is kept — full alternative-set support is a
   post-MVP enhancement, not required for the Team Builder/Database MVP scope.
+- The upstream `counters` field (used for topThreats) is genuinely sparse: most
+  gen9ou species and ALL gen9vgc2026 species have it empty upstream (verified,
+  not a bug in this script). UI consuming topThreats must handle the empty case.
 """
 
 import json
@@ -209,6 +212,19 @@ def main() -> None:
 
     print(f"Collected {len(sets_out)} competitive sets.")
 
+    TOP_N = 5
+
+    def top_teammate_slugs(entry: dict) -> list[str]:
+        ranked = sorted(entry.get("teammates", {}).items(), key=lambda kv: kv[1], reverse=True)
+        slugs = [slug_by_name[name] for name, _ in ranked if name in slug_by_name]
+        return slugs[:TOP_N]
+
+    def top_threat_slugs(entry: dict) -> list[str]:
+        # counters[name] = [score, koPercent, switchPercent]; higher score ranks first.
+        ranked = sorted(entry.get("counters", {}).items(), key=lambda kv: kv[1][0], reverse=True)
+        slugs = [slug_by_name[name] for name, _ in ranked if name in slug_by_name]
+        return slugs[:TOP_N]
+
     usage_out = []
     for fmt, stats_data in stats_by_format.items():
         for species_name, entry in stats_data["pokemon"].items():
@@ -220,6 +236,8 @@ def main() -> None:
                 "format": fmt,
                 "speciesId": slug,
                 "usagePercent": round(entry["usage"]["weighted"] * 100, 2),
+                "topTeammates": top_teammate_slugs(entry),
+                "topThreats": top_threat_slugs(entry),
             })
 
     print(f"Collected {len(usage_out)} usage stat entries.")
