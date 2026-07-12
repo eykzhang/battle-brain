@@ -8,6 +8,7 @@ enum DatasetBootstrapper {
     struct DatasetFile: Decodable {
         let version: String
         let species: [SpeciesDTO]
+        let moves: [MoveDTO]
         let sets: [CompetitiveSetDTO]
         let usage: [UsageStatDTO]
     }
@@ -24,6 +25,17 @@ enum DatasetBootstrapper {
         let specialDefense: Int
         let speed: Int
         let abilities: [String]
+        let learnableMoveIds: [String]
+    }
+
+    struct MoveDTO: Decodable {
+        let id: String
+        let name: String
+        let type: String
+        let category: String
+        let power: Int?
+        let accuracy: Int?
+        let pp: Int
     }
 
     struct CompetitiveSetDTO: Decodable {
@@ -87,7 +99,20 @@ enum DatasetBootstrapper {
                 specialAttack: dto.specialAttack,
                 specialDefense: dto.specialDefense,
                 speed: dto.speed,
-                abilities: dto.abilities
+                abilities: dto.abilities,
+                learnableMoveIds: dto.learnableMoveIds
+            ))
+        }
+
+        for dto in dataset.moves {
+            context.insert(Move(
+                id: dto.id,
+                name: dto.name,
+                type: dto.type,
+                category: dto.category,
+                power: dto.power,
+                accuracy: dto.accuracy,
+                pp: dto.pp
             ))
         }
 

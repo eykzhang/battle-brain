@@ -16,14 +16,34 @@ scratch.
 
 ## Status
 
-Core data layer (step 1) and Competitive Database UI (step 2) done. Species browse/
-search list (`Database/DatabaseListView.swift`) and detail view
-(`Database/SpeciesDetailView.swift`: stats, typing, abilities, format-scoped usage/
-sets/teammates/threats) both verified against real bundled data in the simulator.
-`UsageStat` now also carries `topTeammates`/`topThreats` (added when building this
-pillar — Smogon's `counters` field is genuinely sparse upstream, so threats sections
-can legitimately be empty; that's real data, not a bug). Team Builder (step 3) not
-started. AWS backend (IaC) not started.
+Core data layer (step 1) and Competitive Database UI (step 2) done and verified.
+Team Builder (step 3) implemented — build succeeds, app launches, both tabs render —
+but species/move/ability/item/nature picker flows and EV/IV editing have not yet been
+tapped through end-to-end in the simulator; treat as unverified until confirmed.
+AWS backend (IaC) not started.
+
+The project structure follows a feature-oriented convention (mirrored from the
+`Mobile_AI` sibling project): `App/` (entry point + `RootView`), `Core/` (shared
+SwiftData schema, flat — no subfolders yet), `Features/<Name>/` (one per pillar, with
+a `Views/` subfolder once a feature has several view files), `Features/SharedFeatures/`
+(reusable pieces used by more than one feature, e.g. `TypeBadge`, `SpeciesRow`).
+
+Core's schema now also includes `Move` (per-move type/category/power/accuracy/PP) and
+`Species.learnableMoveIds` (each species' actual gen9 movepool, filtered from PokeAPI's
+full cross-generation learnset) — added when Team Builder needed a legality-aware move
+picker, since the original bundled dataset only had moves that happened to appear in
+Smogon's sample sets.
+
+## View architecture — hybrid, not uniform MVVM
+
+Database and Team Builder use `@Query` directly in views, no ViewModel — see the plan
+doc's "Technical stack — iOS app" section for the full reasoning. In short: these are
+CRUD-shaped screens over SwiftData, and `@Query` already gives live reactivity for
+free; wrapping it in a ViewModel would just re-fetch/re-publish the same data with none
+of the benefit. Replay Analysis, AI Coach, and Battle Companion are *not* CRUD-shaped
+(they involve real async orchestration/state with no query behind it) and should get a
+dedicated `@Observable` ViewModel when built. Don't default to one pattern uniformly
+without checking which side of this split a new pillar falls on.
 
 ## Baking the bundled dataset
 
@@ -62,6 +82,12 @@ iOS 26 (Apple Intelligence-capable devices only — see the plan referenced abov
 
 No test target or AWS IaC exists yet — add commands here (including "how to run a
 single test") as soon as they do. Don't leave this section stale.
+
+## Git workflow
+
+The user commits and pushes themselves — do not run `git commit` or `git push` in this
+repo unless explicitly asked to in the moment. Stage/prepare changes and hand back for
+review instead. If ever asked to commit, do not add a `Co-Authored-By` trailer.
 
 ## Design philosophy
 

@@ -11,6 +11,7 @@ final class TeamMember {
     var ability: String?
     var item: String?
     var nature: String?
+    var teraType: String?
     var hpEV: Int
     var attackEV: Int
     var defenseEV: Int
@@ -35,6 +36,7 @@ final class TeamMember {
         ability: String? = nil,
         item: String? = nil,
         nature: String? = nil,
+        teraType: String? = nil,
         hpEV: Int = 0,
         attackEV: Int = 0,
         defenseEV: Int = 0,
@@ -56,6 +58,7 @@ final class TeamMember {
         self.ability = ability
         self.item = item
         self.nature = nature
+        self.teraType = teraType
         self.hpEV = hpEV
         self.attackEV = attackEV
         self.defenseEV = defenseEV

@@ -26,9 +26,7 @@ struct SpeciesDetailView: View {
     private var setsForFormat: [CompetitiveSet] { sets.filter { $0.format == selectedFormat } }
     private var usageForFormat: UsageStat? { usage.first { $0.format == selectedFormat } }
 
-    private var speciesById: [String: Species] {
-        Dictionary(uniqueKeysWithValues: allSpecies.map { ($0.id, $0) })
-    }
+    private var speciesById: [String: Species] { allSpecies.byId }
 
     var body: some View {
         Group {

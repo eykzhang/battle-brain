@@ -6,6 +6,7 @@ struct BattleBrainApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Species.self,
+            Move.self,
             CompetitiveSet.self,
             UsageStat.self,
             Team.self,
@@ -18,7 +19,7 @@ struct BattleBrainApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
         .modelContainer(sharedModelContainer)
     }

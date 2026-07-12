@@ -23,18 +23,3 @@ struct DatabaseListView: View {
         }
     }
 }
-
-private struct SpeciesRow: View {
-    let species: Species
-
-    var body: some View {
-        HStack {
-            Text(species.name)
-            Spacer()
-            TypeBadge(type: species.primaryType)
-            if let secondary = species.secondaryType {
-                TypeBadge(type: secondary)
-            }
-        }
-    }
-}

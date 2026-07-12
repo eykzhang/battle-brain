@@ -14,6 +14,7 @@ final class Species {
     var specialDefense: Int
     var speed: Int
     var abilities: [String]
+    var learnableMoveIds: [String]
 
     init(
         id: String,
@@ -26,7 +27,8 @@ final class Species {
         specialAttack: Int,
         specialDefense: Int,
         speed: Int,
-        abilities: [String]
+        abilities: [String],
+        learnableMoveIds: [String]
     ) {
         self.id = id
         self.name = name
@@ -39,5 +41,6 @@ final class Species {
         self.specialDefense = specialDefense
         self.speed = speed
         self.abilities = abilities
+        self.learnableMoveIds = learnableMoveIds
     }
 }

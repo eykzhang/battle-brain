@@ -16,3 +16,4 @@ xcuserdata/
 
 # Scripts/bake_dataset.py's PokeAPI response cache (regenerable, not source)
 Scripts/.pokeapi_cache/
+Scripts/.pokeapi_move_cache/

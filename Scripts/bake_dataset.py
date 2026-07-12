@@ -20,6 +20,10 @@ Known scoping simplifications (documented, not oversights):
 - The upstream `counters` field (used for topThreats) is genuinely sparse: most
   gen9ou species and ALL gen9vgc2026 species have it empty upstream (verified,
   not a bug in this script). UI consuming topThreats must handle the empty case.
+- Each species' `learnableMoveIds` (and the bundled `moves` reference table) is
+  filtered to the scarlet-violet (gen9) version group only, even though PokeAPI's
+  raw learnset spans every game generation — this is what makes a species' move
+  picker only offer moves it can actually learn *now*, not moves from Gen 1-8.
 """
 
 import json
@@ -31,7 +35,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = ROOT / "Scripts" / ".pokeapi_cache"
+MOVE_CACHE_DIR = ROOT / "Scripts" / ".pokeapi_move_cache"
 OUTPUT_PATH = ROOT / "BattleBrain" / "Resources" / "dataset.json"
+
+# The current generation's version group — used to filter each species' full
+# PokeAPI learnset (which spans every game the species has ever appeared in)
+# down to what's actually learnable in gen9.
+CURRENT_VERSION_GROUP = "scarlet-violet"
 
 SETS_FORMATS = {
     "gen9ou": "https://pkmn.github.io/smogon/data/sets/gen9ou.json",
@@ -124,6 +134,31 @@ def fetch_pokeapi_species(slug: str) -> dict | None:
     return data
 
 
+def learnset_move_names(pokeapi_data: dict) -> list[str]:
+    names = set()
+    for entry in pokeapi_data.get("moves", []):
+        for detail in entry["version_group_details"]:
+            if detail["version_group"]["name"] == CURRENT_VERSION_GROUP:
+                names.add(entry["move"]["name"])
+                break
+    return sorted(names)
+
+
+def fetch_move(name: str) -> dict | None:
+    cache_path = MOVE_CACHE_DIR / f"{name}.json"
+    if cache_path.exists():
+        return json.loads(cache_path.read_text())
+    try:
+        data = fetch_json(f"https://pokeapi.co/api/v2/move/{name}")
+    except urllib.error.HTTPError as error:
+        print(f"  ! PokeAPI move lookup failed for '{name}': {error}")
+        return None
+    MOVE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(json.dumps(data))
+    time.sleep(0.05)
+    return data
+
+
 def stat_value(stats: list[dict], name: str) -> int:
     for entry in stats:
         if entry["stat"]["name"] == name:
@@ -152,6 +187,7 @@ def main() -> None:
 
     species_out = []
     slug_by_name: dict[str, str] = {}
+    all_move_names: set[str] = set()
     for name in sorted(species_names):
         slug = slugify_species(name)
         pokeapi_data = fetch_pokeapi_species(slug)
@@ -160,6 +196,8 @@ def main() -> None:
         slug_by_name[name] = slug
         types = [t["type"]["name"].capitalize() for t in pokeapi_data["types"]]
         abilities = [a["ability"]["name"].replace("-", " ").title() for a in pokeapi_data["abilities"]]
+        learnset = learnset_move_names(pokeapi_data)
+        all_move_names.update(learnset)
         species_out.append({
             "id": slug,
             "name": name,
@@ -172,9 +210,28 @@ def main() -> None:
             "specialDefense": stat_value(pokeapi_data["stats"], "special-defense"),
             "speed": stat_value(pokeapi_data["stats"], "speed"),
             "abilities": abilities,
+            "learnableMoveIds": learnset,
         })
 
     print(f"Resolved {len(species_out)} species against PokeAPI.")
+
+    print(f"Fetching {len(all_move_names)} unique moves...")
+    moves_out = []
+    for move_name in sorted(all_move_names):
+        move_data = fetch_move(move_name)
+        if move_data is None:
+            continue
+        moves_out.append({
+            "id": move_data["name"],
+            "name": move_data["name"].replace("-", " ").title(),
+            "type": move_data["type"]["name"].capitalize(),
+            "category": move_data["damage_class"]["name"].capitalize() if move_data["damage_class"] else "Status",
+            "power": move_data["power"],
+            "accuracy": move_data["accuracy"],
+            "pp": move_data["pp"],
+        })
+
+    print(f"Resolved {len(moves_out)} moves against PokeAPI.")
 
     sets_out = []
     for fmt, sets_data in sets_by_format.items():
@@ -245,6 +302,7 @@ def main() -> None:
     dataset = {
         "version": time.strftime("%Y-%m-%d"),
         "species": species_out,
+        "moves": moves_out,
         "sets": sets_out,
         "usage": usage_out,
     }
