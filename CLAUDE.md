@@ -16,7 +16,26 @@ scratch.
 
 ## Status
 
-iOS app is scaffolded (empty shell, no feature code yet). AWS backend (IaC) not started.
+Core data layer done (build order step 1): SwiftData schema (`Species`,
+`CompetitiveSet`, `UsageStat`, `Team`, `TeamMember`), bundled fallback dataset baked by
+`Scripts/bake_dataset.py`, and a bootstrap loader that seeds the store on first launch.
+Verified running end-to-end in the simulator. Real feature UI (Competitive Database,
+step 2) not started. AWS backend (IaC) not started.
+
+## Baking the bundled dataset
+
+`BattleBrain/Resources/dataset.json` is generated, not hand-edited. Re-run after
+changing what it should contain, or periodically to pick up fresh Smogon data:
+
+```
+python3 Scripts/bake_dataset.py
+```
+
+Pulls sample sets + usage stats from `pkmn.github.io/smogon/data` (gen9ou singles,
+gen9vgc doubles — see the plan's "Dataset scope" decision) and cross-references base
+species data from PokeAPI, caching PokeAPI responses in `Scripts/.pokeapi_cache/`
+(gitignored) so reruns are fast. Regenerate the Xcode project after rebaking
+(`xcodegen generate`) so the new resource is picked up.
 
 ## Building the iOS app
 

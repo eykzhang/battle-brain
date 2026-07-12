@@ -60,15 +60,15 @@ BattleBrain is in active early development. The Xcode project is scaffolded and
 building; feature implementation is in progress following the build order below.
 
 - [x] Project scaffolding (XcodeGen, module structure)
-- [ ] Core data layer + local competitive dataset
+- [x] Core data layer + local competitive dataset
 - [ ] Competitive Database
 - [ ] Team Builder
 - [ ] AWS data pipeline + dataset API
 - [ ] Replay Analysis
-- [ ] AWS replay-analysis cache
 - [ ] AI Coach
-- [ ] AWS team sync (Cognito + DynamoDB)
 - [ ] Battle Companion
+
+**Stretch, post-MVP:** AWS replay-analysis cache, AWS team sync (Cognito + DynamoDB).
 
 ## Getting started
 

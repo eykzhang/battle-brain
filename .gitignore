@@ -13,3 +13,6 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Scripts/bake_dataset.py's PokeAPI response cache (regenerable, not source)
+Scripts/.pokeapi_cache/
