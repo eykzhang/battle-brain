@@ -2,17 +2,34 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Notion sync
+
+This project's status is mirrored in Notion at
+https://app.notion.com/p/3a1fe25f150b81f89c63c3d575ce3beb. After a commit (or at the end of a
+session with meaningful progress — sync once per session, not per commit), update its `Status`
+property and add a short note under "Recent activity" via the Notion connector. See the parent
+`../CLAUDE.md`'s "Notion sync" section for the full rule and the other project/DB links.
+
 ## Project
 
 BattleBrain is an iOS companion app for competitive Pokémon Showdown players: team
-builder, competitive database, replay analysis, an on-device AI coach (Apple Foundation
-Models), a manual battle-companion reference tool, and an AWS backend (data pipeline,
-team sync, replay-analysis cache).
+builder, competitive database, replay analysis, an engine-backed AI coach, a manual
+battle-companion reference tool, and an AWS backend (data pipeline, engine analysis
+service, team sync).
+
+**Overhaul (July 2026)**: the app's strategic intelligence comes from a separate
+ML/search battle engine project (`~/Projects/battle-engine/`, "Stockfish for
+Pokémon"), not from Foundation Models. FM survives only as a thin natural-language
+explainer over engine output ("ML plays, LLM explains"). Replay Analysis gains a
+per-turn win-probability eval bar fed by the engine's AWS analysis API; Battle
+Companion stays manual-reference only (no live engine recommendations in ranked play
+— that would be cheating under Showdown rules).
 
 The full scope, architecture, and build order are defined in
-`/Users/edward/.claude/plans/battlebrain-an-happy-summit.md` — read it before making
-architectural decisions or adding a new pillar/service; don't re-derive scope from
-scratch.
+`/Users/edward/.claude/plans/battlebrain-an-happy-summit.md` (app + AWS) and
+`/Users/edward/.claude/plans/completely-overhaul-the-battle-wondrous-pillow.md`
+(engine roadmap) — read them before making architectural decisions or adding a new
+pillar/service; don't re-derive scope from scratch.
 
 ## Status
 
@@ -20,7 +37,9 @@ Core data layer (step 1) and Competitive Database UI (step 2) done and verified.
 Team Builder (step 3) implemented — build succeeds, app launches, both tabs render —
 but species/move/ability/item/nature picker flows and EV/IV editing have not yet been
 tapped through end-to-end in the simulator; treat as unverified until confirmed.
-AWS backend (IaC) not started.
+AWS backend (IaC) not started. Engine track lives in the separate `battle-engine`
+repo (see its own CLAUDE.md); app steps 4–6 (AWS data pipeline, Replay Analysis,
+Battle Companion) proceed independently of it.
 
 The project structure follows a feature-oriented convention (mirrored from the
 `Mobile_AI` sibling project): `App/` (entry point + `RootView`), `Core/` (shared
