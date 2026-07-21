@@ -5,6 +5,7 @@ struct TeamMemberEditorView: View {
     @Bindable var member: TeamMember
 
     @Query private var allSpecies: [Species]
+    @Query private var allMoves: [Move]
     @State private var showingSpeciesPicker = false
     @State private var showingItemPicker = false
     @State private var showingNaturePicker = false
@@ -17,6 +18,10 @@ struct TeamMemberEditorView: View {
 
     private var species: Species? {
         allSpecies.first { $0.id == member.speciesId }
+    }
+
+    private var movesByName: [String: Move] {
+        Dictionary(uniqueKeysWithValues: allMoves.map { ($0.name, $0) })
     }
 
     private var evTotal: Int {
@@ -65,8 +70,15 @@ struct TeamMemberEditorView: View {
                             HStack {
                                 Text("Move \(slot + 1)")
                                 Spacer()
-                                Text(moveName(at: slot) ?? "—")
-                                    .foregroundStyle(moveName(at: slot) == nil ? .secondary : .primary)
+                                if let name = moveName(at: slot) {
+                                    if let move = movesByName[name] {
+                                        TypeBadge(type: move.type)
+                                    }
+                                    Text(name)
+                                } else {
+                                    Text("—")
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                     }

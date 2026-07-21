@@ -56,13 +56,13 @@ struct SpeciesDetailView: View {
                 }
             }
 
-            Section("Base Stats") {
-                StatBar(label: "HP", value: species.hp)
-                StatBar(label: "Atk", value: species.attack)
-                StatBar(label: "Def", value: species.defense)
-                StatBar(label: "SpA", value: species.specialAttack)
-                StatBar(label: "SpD", value: species.specialDefense)
-                StatBar(label: "Spe", value: species.speed)
+            Section("Base Stats — \(species.bst) BST") {
+                StatBar(stat: .hp, value: species.hp)
+                StatBar(stat: .attack, value: species.attack)
+                StatBar(stat: .defense, value: species.defense)
+                StatBar(stat: .specialAttack, value: species.specialAttack)
+                StatBar(stat: .specialDefense, value: species.specialDefense)
+                StatBar(stat: .speed, value: species.speed)
             }
 
             Section("Abilities") {
@@ -98,7 +98,11 @@ struct SpeciesDetailView: View {
                 if let usageForFormat, !usageForFormat.topTeammates.isEmpty {
                     Section("Common Teammates") {
                         ForEach(usageForFormat.topTeammates, id: \.self) { id in
-                            Text(speciesById[id]?.name ?? id)
+                            if let teammate = speciesById[id] {
+                                NavigationLink(value: teammate.id) {
+                                    SpeciesRow(species: teammate)
+                                }
+                            }
                         }
                     }
                 }
@@ -106,7 +110,11 @@ struct SpeciesDetailView: View {
                 if let usageForFormat, !usageForFormat.topThreats.isEmpty {
                     Section("Common Threats") {
                         ForEach(usageForFormat.topThreats, id: \.self) { id in
-                            Text(speciesById[id]?.name ?? id)
+                            if let threat = speciesById[id] {
+                                NavigationLink(value: threat.id) {
+                                    SpeciesRow(species: threat)
+                                }
+                            }
                         }
                     }
                 }
@@ -131,20 +139,64 @@ struct SpeciesDetailView: View {
 private struct CompetitiveSetRow: View {
     let set: CompetitiveSet
 
+    private var evSpread: String {
+        let parts: [(Int, String)] = [
+            (set.hpEV, "HP"), (set.attackEV, "Atk"), (set.defenseEV, "Def"),
+            (set.specialAttackEV, "SpA"), (set.specialDefenseEV, "SpD"), (set.speedEV, "Spe"),
+        ]
+        return parts.filter { $0.0 > 0 }.map { "\($0.0) \($0.1)" }.joined(separator: " / ")
+    }
+
+    private var nonDefaultIVs: String? {
+        let parts: [(Int, String)] = [
+            (set.hpIV, "HP"), (set.attackIV, "Atk"), (set.defenseIV, "Def"),
+            (set.specialAttackIV, "SpA"), (set.specialDefenseIV, "SpD"), (set.speedIV, "Spe"),
+        ]
+        let changed = parts.filter { $0.0 != 31 }.map { "\($0.0) \($0.1)" }
+        return changed.isEmpty ? nil : changed.joined(separator: " / ")
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(set.setName).font(.headline)
-            if let ability = set.ability {
-                Text("Ability: \(ability)").font(.caption)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(set.setName).font(.headline)
+                Spacer()
+                if let tera = set.teraType {
+                    TypeBadge(type: tera)
+                }
             }
-            if let item = set.item {
-                Text("Item: \(item)").font(.caption)
+
+            HStack(spacing: 12) {
+                if let ability = set.ability {
+                    Label(ability, systemImage: "sparkle")
+                        .font(.caption)
+                }
+                if let item = set.item {
+                    Label(item, systemImage: "bag")
+                        .font(.caption)
+                }
+                if let nature = set.nature {
+                    Label(nature, systemImage: "arrow.up.arrow.down")
+                        .font(.caption)
+                }
             }
-            if let nature = set.nature {
-                Text("Nature: \(nature)").font(.caption)
+            .foregroundStyle(.secondary)
+
+            Text(set.moves.joined(separator: " / "))
+                .font(.caption)
+
+            if !evSpread.isEmpty {
+                Text("EVs: \(evSpread)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
-            Text(set.moves.joined(separator: " / ")).font(.caption)
+
+            if let ivs = nonDefaultIVs {
+                Text("IVs: \(ivs)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 }

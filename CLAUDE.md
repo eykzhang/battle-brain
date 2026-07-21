@@ -34,9 +34,21 @@ pillar/service; don't re-derive scope from scratch.
 ## Status
 
 Core data layer (step 1) and Competitive Database UI (step 2) done and verified.
-Team Builder (step 3) implemented — build succeeds, app launches, both tabs render —
-but species/move/ability/item/nature picker flows and EV/IV editing have not yet been
-tapped through end-to-end in the simulator; treat as unverified until confirmed.
+Team Builder (step 3) implemented — build succeeds, app launches, all five tabs
+render — but species/move/ability/item/nature picker flows and EV/IV editing have
+not yet been tapped through end-to-end in the simulator; treat as unverified until
+confirmed. UI polished: canonical per-stat stat bar colors, BST in species rows,
+enriched competitive set display (EV spreads, tera type, non-default IVs),
+teammates/threats as tappable SpeciesRows, richer team list/editor rows with type
+badges and member details, move type badges in the member editor. Stub tabs for
+Replays, AI Coach, and Battle Companion are present with placeholder content.
+
+Engine API contract stubbed (`Core/EngineService.swift`): `EngineService` protocol
+with `analyzeReplay`/`analyzeTurn` methods, `TurnEvaluation` and
+`ReplayAnalysisResult` types. `StubEngineService` returns plausible mock data for
+UI development. The real implementation will swap in when the engine project
+(`battle-engine`) passes its Phase 1 gate and the AWS analysis service is live.
+
 AWS backend (IaC) not started. Engine track lives in the separate `battle-engine`
 repo (see its own CLAUDE.md); app steps 4–6 (AWS data pipeline, Replay Analysis,
 Battle Companion) proceed independently of it.
@@ -46,6 +58,8 @@ The project structure follows a feature-oriented convention (mirrored from the
 SwiftData schema, flat — no subfolders yet), `Features/<Name>/` (one per pillar, with
 a `Views/` subfolder once a feature has several view files), `Features/SharedFeatures/`
 (reusable pieces used by more than one feature, e.g. `TypeBadge`, `SpeciesRow`).
+Stub pillar directories (`ReplayAnalysis/`, `AICoach/`, `Companion/`) contain
+placeholder views wired into `MainTabView`.
 
 Core's schema now also includes `Move` (per-move type/category/power/accuracy/PP) and
 `Species.learnableMoveIds` (each species' actual gen9 movepool, filtered from PokeAPI's

@@ -87,7 +87,23 @@ struct TeamEditorView: View {
     @ViewBuilder
     private func memberRow(_ member: TeamMember) -> some View {
         if let species = speciesById[member.speciesId] {
-            SpeciesRow(species: species)
+            VStack(alignment: .leading, spacing: 4) {
+                SpeciesRow(species: species)
+                HStack(spacing: 8) {
+                    if let item = member.item {
+                        Label(item, systemImage: "bag")
+                    }
+                    if let nature = member.nature {
+                        Label(nature, systemImage: "arrow.up.arrow.down")
+                    }
+                    let moveCount = member.moves.filter { !$0.isEmpty }.count
+                    if moveCount > 0 {
+                        Label("\(moveCount)/4 moves", systemImage: "burst")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
         } else {
             Text("Choose Species")
                 .foregroundStyle(.secondary)

@@ -16,6 +16,8 @@ final class Species {
     var abilities: [String]
     var learnableMoveIds: [String]
 
+    var bst: Int { hp + attack + defense + specialAttack + specialDefense + speed }
+
     init(
         id: String,
         name: String,

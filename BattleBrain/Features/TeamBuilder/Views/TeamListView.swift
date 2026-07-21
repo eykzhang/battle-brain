@@ -4,6 +4,9 @@ import SwiftData
 struct TeamListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Team.createdAt, order: .reverse) private var teams: [Team]
+    @Query(sort: \Species.name) private var allSpecies: [Species]
+
+    private var speciesById: [String: Species] { allSpecies.byId }
 
     var body: some View {
         List {
@@ -11,12 +14,7 @@ struct TeamListView: View {
                 NavigationLink {
                     TeamEditorView(team: team)
                 } label: {
-                    VStack(alignment: .leading) {
-                        Text(team.name.isEmpty ? "Untitled Team" : team.name)
-                        Text("\(formatLabel(team.format)) · \(team.members.count) Pokémon")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    teamRow(team)
                 }
             }
             .onDelete(perform: deleteTeams)
@@ -38,6 +36,25 @@ struct TeamListView: View {
                     systemImage: "person.3",
                     description: Text("Tap + to build your first team.")
                 )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func teamRow(_ team: Team) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(team.name.isEmpty ? "Untitled Team" : team.name)
+            Text("\(formatLabel(team.format)) · \(team.members.count) Pokémon")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            if !team.members.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(team.members) { member in
+                        if let species = speciesById[member.speciesId] {
+                            TypeBadge(type: species.primaryType)
+                        }
+                    }
+                }
             }
         }
     }
